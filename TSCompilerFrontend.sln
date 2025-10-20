@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSCompilerFrontend", "TSCompilerFrontend.csproj", "{78977D6F-CE32-4B3F-813D-D16221D0DDFB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSCompilerFrontend", "TSCompilerFrontend\TSCompilerFrontend.csproj", "{78977D6F-CE32-4B3F-813D-D16221D0DDFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
