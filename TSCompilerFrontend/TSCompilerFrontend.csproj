@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Description>implements the frontend components of typescript compiler</Description>
+        <Copyright>MIT</Copyright>
+        <PackageLicenseUrl>./LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/alwleedamado/TSCompilerFrontend.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+</Project>
