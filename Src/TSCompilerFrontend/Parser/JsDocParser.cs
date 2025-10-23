@@ -6,17 +6,12 @@ using static TSCompilerFrontend.Parser.Scanner;
 
 namespace TSCompilerFrontend.Parser;
 
-public class JsDocParser
+public class JsDocParser(Parser parser)
 {
-  public JsDocParser(Parser parser)
-  {
-    Parser = parser;
-  }
-
-  private Parser Parser { get; set; }
+  private Parser Parser { get; set; } = parser;
 
   private Scanner Scanner => Parser.Scanner;
-  private string SourceText => Parser.SourceText;
+  private string? SourceText => Parser.SourceText;
 
   private SyntaxKind CurrentToken
   {
@@ -58,12 +53,12 @@ public class JsDocParser
 
   public static (JsDocTypeExpression res, List<Diagnostic> diagnostics)
     ParseJsDocTypeExpressionForTests(
-      string content, int? start, int? length)
+      string? content, int? start, int? length)
   {
     var dp = new JsDocParser(new Parser());
     dp.Parser.InitializeState(content, ScriptTarget.Latest, null, ScriptKind.Js);
 
-    var sourceFile = dp.Parser.CreateSourceFile("file.js", ScriptTarget.Latest, ScriptKind.Js);
+   // var sourceFile = dp.Parser.CreateSourceFile("file.js", ScriptTarget.Latest, ScriptKind.Js);
 
     dp.Parser.Scanner.SetText(content, start, length);
 
@@ -266,8 +261,8 @@ public class JsDocParser
   {
     if (!ParseDiagnostics.Any() && !typeArguments.Any())
     {
-      var start = (typeArguments.Pos ?? 0) - "<".Length;
-      var end = SkipTriviaM(SourceText, (int)typeArguments.End) + ">".Length;
+      var start = (typeArguments.Pos ?? 0) - 1;
+      var end = SkipTriviaM(SourceText, (int)typeArguments.End!) + ">".Length;
 
       ParseErrorAtPosition(start, end - start, Diagnostics.Type_argument_list_cannot_be_empty);
     }
@@ -368,7 +363,7 @@ public class JsDocParser
     }
   }
 
-  public Tuple<JsDoc, List<Diagnostic>> ParseIsolatedJsDocComment(string content, int start,
+  public Tuple<JsDoc, List<Diagnostic>> ParseIsolatedJsDocComment(string? content, int start,
     int length)
   {
     if (Parser == null) Parser = new Parser();
@@ -407,7 +402,7 @@ public class JsDocParser
     Debug.Assert(end <= content.Length);
 
     var tags = new NodeArray<IJsDocTag>();
-    var comments = new List<string>();
+    var comments = new List<string?>();
     JsDoc result = null;
     if (!IsJsDocStart(content, (int)start)) return result;
 
@@ -497,7 +492,7 @@ public class JsDocParser
         result = CreateJsDocComment();
         return result;
 
-        void PushComment(string text)
+        void PushComment(string? text)
         {
           margin ??= indent;
           comments.Add(text);
@@ -508,14 +503,14 @@ public class JsDocParser
 
     return result;
 
-    void RemoveLeadingNewlines(List<string> comments3)
+    void RemoveLeadingNewlines(List<string?> comments3)
     {
       while (comments3.Any() && (comments3[0] == "\n" || comments3[0] == "\r"))
         comments3 = comments3.Skip(1).ToList();
     }
 
 
-    void RemoveTrailingNewlines(List<string> comments2)
+    void RemoveTrailingNewlines(List<string?> comments2)
     {
       while (comments2.Any() &&
              (comments2[comments2.Count() - 1] == "\n" ||
@@ -524,7 +519,7 @@ public class JsDocParser
     }
 
 
-    bool IsJsDocStart(string content2, int start2)
+    bool IsJsDocStart(string? content2, int start2)
     {
       return content2.charCodeAt(start2) == (int)CharacterCodes.Slash &&
              content2.charCodeAt(start2 + 1) == (int)CharacterCodes.Asterisk &&
@@ -602,9 +597,9 @@ public class JsDocParser
     }
 
 
-    List<string> ParseTagComments(int indent)
+    List<string?> ParseTagComments(int indent)
     {
-      var comments2 = new List<string>();
+      var comments2 = new List<string?>();
       var state = JSDocState.SawAsterisk;
       int? margin = null;
       while (Token() != SyntaxKind.AtToken && Token() != SyntaxKind.EndOfFileToken)
@@ -661,7 +656,7 @@ public class JsDocParser
       RemoveTrailingNewlines(comments2);
       return comments2;
 
-      void PushComment(string text)
+      void PushComment(string? text)
       {
         if (margin == null) margin = indent;
 
@@ -685,7 +680,7 @@ public class JsDocParser
     }
 
 
-    void AddTag(IJsDocTag tag, List<string> comments2)
+    void AddTag(IJsDocTag tag, List<string?> comments2)
     {
       tag.Comment = string.Join("", comments2);
       if (tags == null)
@@ -1066,13 +1061,13 @@ public class JsDocParser
     Parser.FixupParentReferences(rootNode);
   }
 
-  private void ParseErrorAtCurrentToken(DiagnosticMessage message, object arg0 = null)
+  private void ParseErrorAtCurrentToken(DiagnosticMessage message, object? arg0 = null)
   {
     Parser.ParseErrorAtCurrentToken(message, arg0);
   }
 
   private void ParseErrorAtPosition(int start, int length, DiagnosticMessage message,
-    object arg0 = null)
+    object? arg0 = null)
   {
     Parser.ParseErrorAtPosition(start, length, message, arg0);
   }
@@ -1123,7 +1118,7 @@ public class JsDocParser
     return Parser.FinishNode<T>(node, end);
   }
 
-  private Identifier ParseIdentifierName()
+  private Identifier? ParseIdentifierName()
   {
     return Parser.ParseIdentifierName();
   }
@@ -1139,7 +1134,7 @@ public class JsDocParser
     return Parser.ParseTypeLiteral();
   }
 
-  private IExpression ParseExpression()
+  private IExpression? ParseExpression()
   {
     return Parser.ParseExpression();
   }

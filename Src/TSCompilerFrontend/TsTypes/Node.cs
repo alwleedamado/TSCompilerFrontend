@@ -8,15 +8,15 @@ namespace TSCompilerFrontend.TsTypes;
 
 public class Node : TextRange, INode
 {
-  public ITypeScriptAST Ast { get; set; }
+  public IAst Ast { get; set; }
 
-  public string SourceStr
+  public string? SourceStr
   {
     get => Ast.SourceStr;
     set => Ast.SourceStr = value;
   }
 
-  public string IdentifierStr => Kind == SyntaxKind.Identifier
+  public string? IdentifierStr => Kind == SyntaxKind.Identifier
     ? GetText()
     : Children.FirstOrDefault(v => v.Kind == SyntaxKind.Identifier)?.GetText().Trim();
 
@@ -48,20 +48,19 @@ public class Node : TextRange, INode
 
   public int TagInt { get; set; }
 
-  public string GetText(string source = null)
+  public string? GetText(string? source = null)
   {
-    if (source == null) source = SourceStr;
+    source ??= SourceStr;
     if (NodeStart == -1)
       if (Pos != null && End != null) return source.Substring((int)Pos, (int)End - (int)Pos);
       else return null;
 
-    if (End != null) return source.Substring(NodeStart, (int)End - NodeStart);
-    return null;
+    return End != null ? source.Substring(NodeStart, (int)End - NodeStart) : null;
   }
 
-  public string GetTextWithComments(string source = null)
+  public string? GetTextWithComments(string? source = null)
   {
-    if (source == null) source = SourceStr;
+    source ??= SourceStr;
     if (Pos != null && End != null)
       return source.Substring((int)Pos, (int)End - (int)Pos);
     return null;
@@ -69,18 +68,14 @@ public class Node : TextRange, INode
 
   public string ToString(bool withPos)
   {
-    if (withPos)
-    {
-      var posStr = $" [{Pos}, {End}]";
-
-      return $"{Enum.GetName(typeof(SyntaxKind), Kind)}  {posStr} {IdentifierStr}";
-    }
-
-    return $"{Enum.GetName(typeof(SyntaxKind), Kind)}  {IdentifierStr}";
+    if (!withPos) return $"{Enum.GetName(typeof(SyntaxKind), Kind)}  {IdentifierStr}";
+    
+    var posStr = $" [{Pos}, {End}]";
+    return $"{Enum.GetName(typeof(SyntaxKind), Kind)}  {posStr} {IdentifierStr}";
   }
 
-  public Node First => Children.FirstOrDefault();
-  public Node Last => Children.LastOrDefault();
+  public Node? First => Children.FirstOrDefault();
+  public Node? Last => Children.LastOrDefault();
   public int Count => Children.Count;
 
   public string GetTreeString(bool withPos = true)
@@ -89,22 +84,18 @@ public class Node : TextRange, INode
     var descendants = GetDescendants().ToList();
     foreach (var node in descendants)
     {
-      //var anc = node.GetAncestors().ToList();
-      for (var i = 1; i < node.Depth; i++) //anc.Count()
+      for (var i = 1; i < node.Depth; i++)
         sb.Append("  ");
       sb.AppendLine(node.ToString(withPos));
     }
-
     return sb.ToString();
   }
 
-  public void MakeChildren(TypeScriptAST ast)
+  public void MakeChildren(Ast ast)
   {
     Children = new List<Node>();
     Ts.ForEachChild(this, node =>
     {
-      if (node == null)
-        return null;
       var n = (Node)node;
       n.Ast = ast;
       n.Depth = Depth + 1;
@@ -119,7 +110,6 @@ public class Node : TextRange, INode
   public override string ToString()
   {
     var posStr = $" [{Pos}, {End}]";
-
     return $"{Enum.GetName(typeof(SyntaxKind), Kind)}  {posStr} {IdentifierStr}";
   }
 
@@ -128,7 +118,7 @@ public class Node : TextRange, INode
     return GetDescendants(false).OfKind(kind);
   }
 
-  public IEnumerable<Node> GetDescendants(bool includeSelf = true)
+  public IEnumerable<Node>? GetDescendants(bool includeSelf = true)
   {
     if (includeSelf) yield return this;
 
@@ -171,8 +161,8 @@ public interface INode : ITextRange
   Node Last { get; }
   int Count { get; }
 
-  string GetText(string source = null);
-  string GetTextWithComments(string source = null);
+  string? GetText(string? source = null);
+  string? GetTextWithComments(string? source = null);
   string GetTreeString(bool withPos = true);
 
   string ToString(bool withPos);

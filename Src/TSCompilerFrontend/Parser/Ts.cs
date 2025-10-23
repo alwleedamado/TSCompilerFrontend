@@ -7,64 +7,54 @@ namespace TSCompilerFrontend.Parser;
 
 public class Ts
 {
-  public static INode VisitNode(Func<INode, INode> cbNode, INode node)
+  private static INode? VisitNode(Func<INode, INode> cbNode, INode? node)
   {
-    if (node != null)
-      return cbNode(node);
-    return null;
+    return node != null ? cbNode(node) : null;
   }
 
-  public static T VisitList<T>(Func<INode[], T> cbNodes, INode[] nodes)
+  public static T? VisitList<T>(Func<INode[], T> cbNodes, INode[]? nodes)
   {
-    if (nodes != null)
-      return cbNodes(nodes);
-    return default;
+    return nodes != null ? cbNodes(nodes) : default;
   }
 
-  public static INode VisitNodeArray(Func<INode[], INode> cbNodes, INode[] nodes)
+  public static INode? VisitNodeArray(Func<INode[], INode> cbNodes, INode[]? nodes)
   {
-    if (nodes != null)
-      return cbNodes(nodes);
-    return null;
+    return nodes != null ? cbNodes(nodes) : null;
   }
 
-  public static INode VisitEachNode(Func<INode, INode> cbNode, List<INode> nodes)
+  public static INode? VisitEachNode(Func<INode, INode?> cbNode, List<INode>? nodes)
   {
-    if (nodes != null)
-      foreach (var node in nodes)
-      {
-        var result = cbNode(node);
-        if (result != null)
-          return result;
-      }
+    if (nodes == null) return null;
+    foreach (var node in nodes)
+    {
+      var result = cbNode(node);
+      if (result != null)
+        return result;
+    }
 
     return null;
   }
 
-  public static INode ForEachChild(INode node, Func<INode, INode> cbNode,
-    Func<INode[], INode> cbNodeArray = null)
+  public static INode? ForEachChild(INode? node, Func<INode, INode> cbNode,
+    Func<INode[], INode>? cbNodeArray = null)
   {
     if (node == null)
       return null;
-    Func<object, IEnumerable<INode>, INode> visitNodes = (o1, o2) =>
+
+    INode? visitNodes(object? o1, IEnumerable<INode>? o2)
     {
+      if (o2 == null) return null;
       var list = o2.ToList();
-      if (list != null)
-        if (cbNodeArray == null)
-          return VisitEachNode(cbNode, list);
-        else
-          return cbNodeArray(list.ToArray());
-      return null;
-    };
+      return cbNodeArray == null ? VisitEachNode(cbNode, list) : cbNodeArray(list.ToArray());
+    }
+
     var cbNodes = cbNodeArray;
     switch (node.Kind)
     {
       case SyntaxKind.QualifiedName:
-
         return VisitNode(cbNode, (node as QualifiedName)?.Left) ??
                VisitNode(cbNode, (node as QualifiedName)?.Right);
       case SyntaxKind.TypeParameter:
-
         return VisitNode(cbNode, (node as TypeParameterDeclaration)?.Name) ??
                VisitNode(cbNode, (node as TypeParameterDeclaration)?.Constraint) ??
                VisitNode(cbNode, (node as TypeParameterDeclaration)?.Default) ??
@@ -87,15 +77,14 @@ public class Ts
       case SyntaxKind.PropertyAssignment:
       case SyntaxKind.VariableDeclaration:
       case SyntaxKind.BindingElement:
-
-        return visitNodes(cbNodes, node.Decorators) ??
-               visitNodes(cbNodes, node.Modifiers) ??
-               VisitNode(cbNode, (node as IVariableLikeDeclaration)?.PropertyName) ??
-               VisitNode(cbNode, (node as IVariableLikeDeclaration)?.DotDotDotToken) ??
-               VisitNode(cbNode, (node as IVariableLikeDeclaration)?.Name) ??
-               VisitNode(cbNode, (node as IVariableLikeDeclaration)?.QuestionToken) ??
-               VisitNode(cbNode, (node as IVariableLikeDeclaration)?.Type) ??
-               VisitNode(cbNode, (node as IVariableLikeDeclaration)?.Initializer);
+          return visitNodes(cbNodes, node?.Decorators) ??
+                 visitNodes(cbNodes, node?.Modifiers) ??
+                 VisitNode(cbNode, (node as IVariableLikeDeclaration)?.PropertyName) ??
+                 VisitNode(cbNode, (node as IVariableLikeDeclaration)?.DotDotDotToken) ??
+                 VisitNode(cbNode, (node as IVariableLikeDeclaration)?.Name) ??
+                 VisitNode(cbNode, (node as IVariableLikeDeclaration)?.QuestionToken) ??
+                 VisitNode(cbNode, (node as IVariableLikeDeclaration)?.Type) ??
+                 VisitNode(cbNode, (node as IVariableLikeDeclaration)?.Initializer);
       case SyntaxKind.FunctionType:
       case SyntaxKind.ConstructorType:
       case SyntaxKind.CallSignature:

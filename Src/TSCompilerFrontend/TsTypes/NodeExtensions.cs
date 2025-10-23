@@ -24,7 +24,7 @@ public static class NodeExtensions
     }
   }
 
-  public static IEnumerable<Node> OfKind(this IEnumerable<Node> nodes, SyntaxKind kind)
+  public static IEnumerable<Node> OfKind(this IEnumerable<Node>? nodes, SyntaxKind kind)
   {
     foreach (var node in nodes)
       if (node.Kind == kind)

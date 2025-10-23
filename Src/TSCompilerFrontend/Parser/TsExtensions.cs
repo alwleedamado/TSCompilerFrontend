@@ -14,17 +14,17 @@ public static class TsExtensions
   }
 
   //public static int length(this string str) => str.Length;
-  public static string substring(this string str, int start, int? end = null)
+  public static string? substring(this string? str, int start, int? end = null)
   {
     return end == null ? str.Substring(start) : str.Substring(start, (int)end - start);
   }
 
-  public static string[] exec(this Regex r, string text)
+  public static string[] exec(this Regex r, string? text)
   {
     return r.Match(text).Captures.Cast<string>().ToArray();
   }
 
-  public static bool test(this Regex r, string text)
+  public static bool test(this Regex r, string? text)
   {
     return r.IsMatch(text);
   }
@@ -37,14 +37,14 @@ public static class TsExtensions
 
 public static class String
 {
-  internal static string fromCharCode(params int[] codes)
+  internal static string? fromCharCode(params int[] codes)
   {
     var sb = new StringBuilder();
     foreach (var c in codes) sb.Append((char)c);
     return sb.ToString();
   }
 
-  public static string slice(this string str, int start, int end = int.MaxValue)
+  public static string? slice(this string? str, int start, int end = int.MaxValue)
   {
     if (start < 0)
       start += str.Length;

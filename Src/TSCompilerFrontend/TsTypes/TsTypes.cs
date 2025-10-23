@@ -149,7 +149,7 @@ public interface IAccessorDeclaration : ISignatureDeclaration, IClassElement,
   IObjectLiteralElementLike
 {
   //object _classElementBrand { get; set; }
-  IBlockOrExpression Body { get; set; } //  Block | Expression
+  IBlockOrExpression? Body { get; set; } //  Block | Expression
 }
 
 public interface IFunctionOrConstructorTypeNode : ISignatureDeclaration, ITypeNode
@@ -158,7 +158,7 @@ public interface IFunctionOrConstructorTypeNode : ISignatureDeclaration, ITypeNo
 
 public interface IUnionOrIntersectionTypeNode : ITypeNode
 {
-  NodeArray<ITypeNode> Types { get; set; }
+  NodeArray<ITypeNode?> Types { get; set; }
 }
 
 //{
@@ -258,7 +258,7 @@ public interface IForInitializer : INode
 
 public interface IBreakOrContinueStatement : IStatement
 {
-  Identifier Label { get; set; }
+  Identifier? Label { get; set; }
 }
 
 public interface ICaseOrDefaultClause : INode
@@ -289,7 +289,7 @@ public interface IModuleReference : INode
 {
 }
 
-public interface INamedImportBindings : INode, INamedImportsOrExports
+public interface INamedImportBindings : INamedImportsOrExports
 {
 }
 
@@ -299,7 +299,7 @@ public interface INamedImportsOrExports : INode
 
 public interface IMportOrExportSpecifier : IDeclaration
 {
-  Identifier PropertyName { get; set; }
+  Identifier? PropertyName { get; set; }
 }
 
 public interface IJsDocTypeReferencingNode : IJsDocType
@@ -310,7 +310,7 @@ public class FlowType : object
 {
 }
 
-public class ITypePredicate : TypePredicateBase
+public class TypePredicate : TypePredicateBase
 {
 }
 
@@ -408,14 +408,14 @@ public class Token : Node
 {
 }
 
-public class Identifier : PrimaryExpression, IJsxTagNameExpression, IEntityName, IPropertyName
+public class Identifier : PrimaryExpression, IEntityName, IPropertyName
 {
   public Identifier()
   {
     Kind = SyntaxKind.Identifier;
   }
 
-  public string Text { get; set; }
+  public string? Text { get; set; }
   public SyntaxKind OriginalKeywordKind { get; set; }
   public GeneratedIdentifierKind AutoGenerateKind { get; set; }
   public int AutoGenerateId { get; set; }
@@ -438,31 +438,31 @@ public class QualifiedName : Node, IEntityName
     Kind = SyntaxKind.QualifiedName;
   }
 
-  public IEntityName Left { get; set; }
-  public Identifier Right { get; set; }
+  public IEntityName? Left { get; set; }
+  public Identifier? Right { get; set; }
 }
 
 public interface IDeclaration : INode
 {
   object DeclarationBrand { get; set; }
-  INode Name { get; set; }
+  INode? Name { get; set; }
 }
 
 public class Declaration : Node, IDeclaration
 {
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
 }
 
-public interface IDeclarationStatement : INode, IDeclaration, IStatement
+public interface IDeclarationStatement : IDeclaration, IStatement
 {
   //Node name { get; set; } // Identifier | StringLiteral | NumericLiteral
 }
 
-public class DeclarationStatement : Node, IDeclarationStatement, IDeclaration, IStatement
+public class DeclarationStatement : Node, IDeclarationStatement
 {
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public object StatementBrand { get; set; }
 }
 
@@ -548,8 +548,8 @@ public class VariableDeclaration : Declaration, IVariableLikeDeclaration
   }
 
   public ITypeNode Type { get; set; }
-  public IExpression Initializer { get; set; }
-  public IPropertyName PropertyName { get; set; }
+  public IExpression? Initializer { get; set; }
+  public IPropertyName? PropertyName { get; set; }
   public DotDotDotToken DotDotDotToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
 }
@@ -583,8 +583,8 @@ public class ParameterDeclaration : Declaration, IVariableLikeDeclaration
   public DotDotDotToken DotDotDotToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
   public ITypeNode Type { get; set; }
-  public IExpression Initializer { get; set; }
-  public IPropertyName PropertyName { get; set; }
+  public IExpression? Initializer { get; set; }
+  public IPropertyName? PropertyName { get; set; }
 }
 
 public class BindingElement : Declaration, IArrayBindingElement, IVariableLikeDeclaration
@@ -594,9 +594,9 @@ public class BindingElement : Declaration, IArrayBindingElement, IVariableLikeDe
     Kind = SyntaxKind.BindingElement;
   }
 
-  public IPropertyName PropertyName { get; set; }
+  public IPropertyName? PropertyName { get; set; }
   public DotDotDotToken DotDotDotToken { get; set; }
-  public IExpression Initializer { get; set; }
+  public IExpression? Initializer { get; set; }
   public QuestionToken QuestionToken { get; set; }
   public ITypeNode Type { get; set; }
 }
@@ -609,8 +609,8 @@ public class PropertySignature : TypeElement, IVariableLikeDeclaration
   }
 
   public ITypeNode Type { get; set; }
-  public IExpression Initializer { get; set; }
-  public IPropertyName PropertyName { get; set; }
+  public IExpression? Initializer { get; set; }
+  public IPropertyName? PropertyName { get; set; }
   public DotDotDotToken DotDotDotToken { get; set; }
 }
 
@@ -623,8 +623,8 @@ public class PropertyDeclaration : ClassElement, IVariableLikeDeclaration
 
   public QuestionToken QuestionToken { get; set; }
   public ITypeNode Type { get; set; }
-  public IExpression Initializer { get; set; }
-  public IPropertyName PropertyName { get; set; }
+  public IExpression? Initializer { get; set; }
+  public IPropertyName? PropertyName { get; set; }
   public DotDotDotToken DotDotDotToken { get; set; }
 }
 
@@ -647,8 +647,8 @@ public class PropertyAssignment : ObjectLiteralElement, IObjectLiteralElementLik
   }
 
   public QuestionToken QuestionToken { get; set; }
-  public IExpression Initializer { get; set; }
-  public IPropertyName PropertyName { get; set; }
+  public IExpression? Initializer { get; set; }
+  public IPropertyName? PropertyName { get; set; }
   public DotDotDotToken DotDotDotToken { get; set; }
   public ITypeNode Type { get; set; }
 }
@@ -672,16 +672,16 @@ public class SpreadAssignment : ObjectLiteralElement, IObjectLiteralElementLike
     Kind = SyntaxKind.SpreadAssignment;
   }
 
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public interface IVariableLikeDeclaration : IDeclaration
 {
-  IPropertyName PropertyName { get; set; }
+  IPropertyName? PropertyName { get; set; }
   DotDotDotToken DotDotDotToken { get; set; }
   QuestionToken QuestionToken { get; set; }
   ITypeNode Type { get; set; }
-  IExpression Initializer { get; set; }
+  IExpression? Initializer { get; set; }
 }
 
 public class PropertyLikeDeclaration : Declaration
@@ -713,7 +713,7 @@ public interface IFunctionLikeDeclaration : ISignatureDeclaration
   object FunctionLikeDeclarationBrand { get; set; }
   AsteriskToken AsteriskToken { get; set; }
   QuestionToken QuestionToken { get; set; }
-  IBlockOrExpression Body { get; set; } // Block | Expression
+  IBlockOrExpression? Body { get; set; } // Block | Expression
 }
 
 public class FunctionLikeDeclaration : SignatureDeclaration, IFunctionLikeDeclaration
@@ -721,7 +721,7 @@ public class FunctionLikeDeclaration : SignatureDeclaration, IFunctionLikeDeclar
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
-  public IBlockOrExpression Body { get; set; } // Block | Expression
+  public IBlockOrExpression? Body { get; set; } // Block | Expression
 }
 
 public class FunctionDeclaration : Node, IFunctionLikeDeclaration, IDeclarationStatement
@@ -735,8 +735,8 @@ public class FunctionDeclaration : Node, IFunctionLikeDeclaration, IDeclarationS
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
-  public IBlockOrExpression Body { get; set; } //  Block | Expression
-  public INode Name { get; set; }
+  public IBlockOrExpression? Body { get; set; } //  Block | Expression
+  public INode? Name { get; set; }
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -753,7 +753,7 @@ public class MethodSignature : Declaration, ISignatureDeclaration, ITypeElement,
 
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
-  public IBlockOrExpression Body { get; set; } //  Block | Expression
+  public IBlockOrExpression? Body { get; set; } //  Block | Expression
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -774,7 +774,7 @@ public class MethodDeclaration : Declaration, IFunctionLikeDeclaration, IClassEl
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
-  public IBlockOrExpression Body { get; set; } //  Block | Expression
+  public IBlockOrExpression? Body { get; set; } //  Block | Expression
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -792,7 +792,7 @@ public class ConstructorDeclaration : Declaration, IFunctionLikeDeclaration, ICl
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
-  public IBlockOrExpression Body { get; set; } //  Block | Expression
+  public IBlockOrExpression? Body { get; set; } //  Block | Expression
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -819,7 +819,7 @@ public class GetAccessorDeclaration : Declaration, IFunctionLikeDeclaration, ICl
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
-  public IBlockOrExpression Body { get; set; } //  Block | Expression
+  public IBlockOrExpression? Body { get; set; } //  Block | Expression
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -839,7 +839,7 @@ public class SetAccessorDeclaration : Declaration, IFunctionLikeDeclaration, ICl
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
-  public IBlockOrExpression Body { get; set; } //  Block | Expression
+  public IBlockOrExpression? Body { get; set; } //  Block | Expression
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -895,7 +895,7 @@ public class FunctionTypeNode : Node, ITypeNode, IFunctionOrConstructorTypeNode
     Kind = SyntaxKind.FunctionType;
   }
 
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -910,7 +910,7 @@ public class ConstructorTypeNode : Node, ITypeNode, IFunctionOrConstructorTypeNo
     Kind = SyntaxKind.ConstructorType;
   }
 
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -925,7 +925,7 @@ public class TypeReferenceNode : TypeNode
     Kind = SyntaxKind.TypeReference;
   }
 
-  public IEntityName TypeName { get; set; }
+  public IEntityName? TypeName { get; set; }
   public NodeArray<ITypeNode> TypeArguments { get; set; }
 }
 
@@ -947,7 +947,7 @@ public class TypeQueryNode : TypeNode
     Kind = SyntaxKind.TypeQuery;
   }
 
-  public IEntityName ExprName { get; set; }
+  public IEntityName? ExprName { get; set; }
 }
 
 public class TypeLiteralNode : Node, ITypeNode, IDeclaration
@@ -959,7 +959,7 @@ public class TypeLiteralNode : Node, ITypeNode, IDeclaration
 
   public NodeArray<ITypeElement> Members { get; set; }
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public object TypeNodeBrand { get; set; }
 }
 
@@ -990,7 +990,7 @@ public class UnionTypeNode : TypeNode, IUnionOrIntersectionTypeNode
     Kind = SyntaxKind.UnionType;
   }
 
-  public NodeArray<ITypeNode> Types { get; set; }
+  public NodeArray<ITypeNode?> Types { get; set; }
 }
 
 public class IntersectionTypeNode : TypeNode, IUnionOrIntersectionTypeNode
@@ -1000,7 +1000,7 @@ public class IntersectionTypeNode : TypeNode, IUnionOrIntersectionTypeNode
     Kind = SyntaxKind.IntersectionType;
   }
 
-  public NodeArray<ITypeNode> Types { get; set; }
+  public NodeArray<ITypeNode?> Types { get; set; }
 }
 
 public class ParenthesizedTypeNode : TypeNode
@@ -1046,7 +1046,7 @@ public class MappedTypeNode : Node, ITypeNode, IDeclaration
   public QuestionToken QuestionToken { get; set; }
   public ITypeNode Type { get; set; }
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public object TypeNodeBrand { get; set; }
 }
 
@@ -1057,7 +1057,7 @@ public class LiteralTypeNode : TypeNode
     Kind = SyntaxKind.LiteralType;
   }
 
-  public IExpression Literal { get; set; }
+  public IExpression? Literal { get; set; }
 }
 
 public class StringLiteral : LiteralExpression, IPropertyName
@@ -1095,7 +1095,7 @@ public class PartiallyEmittedExpression : LeftHandSideExpression
     Kind = SyntaxKind.PartiallyEmittedExpression;
   }
 
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public interface IUnaryExpression : IExpression
@@ -1126,7 +1126,7 @@ public class PrefixUnaryExpression : IncrementExpression
   }
 
   public /*PrefixUnaryOperator*/ SyntaxKind Operator { get; set; }
-  public /*UnaryExpression*/ IExpression Operand { get; set; }
+  public /*UnaryExpression*/ IExpression? Operand { get; set; }
 }
 
 public class PostfixUnaryExpression : IncrementExpression
@@ -1136,7 +1136,7 @@ public class PostfixUnaryExpression : IncrementExpression
     Kind = SyntaxKind.PostfixUnaryExpression;
   }
 
-  public /*LeftHandSideExpression*/ IExpression Operand { get; set; }
+  public /*LeftHandSideExpression*/ IExpression? Operand { get; set; }
   public /*PostfixUnaryOperator*/ SyntaxKind Operator { get; set; }
 }
 
@@ -1233,7 +1233,7 @@ public class DeleteExpression : UnaryExpression
     Kind = SyntaxKind.DeleteExpression;
   }
 
-  public /*UnaryExpression*/ IExpression Expression { get; set; }
+  public /*UnaryExpression*/ IExpression? Expression { get; set; }
 }
 
 public class TypeOfExpression : UnaryExpression
@@ -1243,7 +1243,7 @@ public class TypeOfExpression : UnaryExpression
     Kind = SyntaxKind.TypeOfExpression;
   }
 
-  public /*UnaryExpression*/ IExpression Expression { get; set; }
+  public /*UnaryExpression*/ IExpression? Expression { get; set; }
 }
 
 public class VoidExpression : UnaryExpression
@@ -1253,7 +1253,7 @@ public class VoidExpression : UnaryExpression
     Kind = SyntaxKind.VoidExpression;
   }
 
-  public /*UnaryExpression*/ IExpression Expression { get; set; }
+  public /*UnaryExpression*/ IExpression? Expression { get; set; }
 }
 
 public class AwaitExpression : UnaryExpression
@@ -1263,7 +1263,7 @@ public class AwaitExpression : UnaryExpression
     Kind = SyntaxKind.AwaitExpression;
   }
 
-  public /*UnaryExpression*/ IExpression Expression { get; set; }
+  public /*UnaryExpression*/ IExpression? Expression { get; set; }
 }
 
 public class YieldExpression : Expression
@@ -1274,7 +1274,7 @@ public class YieldExpression : Expression
   }
 
   public AsteriskToken AsteriskToken { get; set; }
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public class BinaryExpression : Node, IExpression, IDeclaration
@@ -1284,11 +1284,11 @@ public class BinaryExpression : Node, IExpression, IDeclaration
     Kind = SyntaxKind.BinaryExpression;
   }
 
-  public IExpression Left { get; set; }
+  public IExpression? Left { get; set; }
   public /*BinaryOperator*/ Token OperatorToken { get; set; }
-  public IExpression Right { get; set; }
+  public IExpression? Right { get; set; }
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public object ExpressionBrand { get; set; }
 }
 
@@ -1311,11 +1311,11 @@ public class ConditionalExpression : Expression
     Kind = SyntaxKind.ConditionalExpression;
   }
 
-  public IExpression Condition { get; set; }
+  public IExpression? Condition { get; set; }
   public QuestionToken QuestionToken { get; set; }
   public IExpression WhenTrue { get; set; }
   public ColonToken ColonToken { get; set; }
-  public IExpression WhenFalse { get; set; }
+  public IExpression? WhenFalse { get; set; }
 }
 
 public class FunctionExpression : Node, IPrimaryExpression, IFunctionLikeDeclaration
@@ -1328,8 +1328,8 @@ public class FunctionExpression : Node, IPrimaryExpression, IFunctionLikeDeclara
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
-  public IBlockOrExpression Body { get; set; } //  Block | Expression
-  public INode Name { get; set; }
+  public IBlockOrExpression? Body { get; set; } //  Block | Expression
+  public INode? Name { get; set; }
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -1358,8 +1358,8 @@ public class ArrowFunction : Node, IExpression, IFunctionLikeDeclaration
   public object FunctionLikeDeclarationBrand { get; set; }
   public AsteriskToken AsteriskToken { get; set; }
   public QuestionToken QuestionToken { get; set; }
-  public IBlockOrExpression Body { get; set; } //  Block | Expression
-  public INode Name { get; set; }
+  public IBlockOrExpression? Body { get; set; } //  Block | Expression
+  public INode? Name { get; set; }
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -1368,7 +1368,7 @@ public class ArrowFunction : Node, IExpression, IFunctionLikeDeclaration
 
 public interface ILiteralLikeNode : INode
 {
-  string Text { get; set; }
+  string? Text { get; set; }
   bool IsUnterminated { get; set; }
   bool HasExtendedUnicodeEscape { get; set; }
   bool IsOctalLiteral { get; set; }
@@ -1376,7 +1376,7 @@ public interface ILiteralLikeNode : INode
 
 public class LiteralLikeNode : Node, ILiteralLikeNode
 {
-  public string Text { get; set; }
+  public string? Text { get; set; }
   public bool IsUnterminated { get; set; }
   public bool HasExtendedUnicodeEscape { get; set; }
   public bool IsOctalLiteral { get; set; }
@@ -1390,7 +1390,7 @@ public interface ILiteralExpression : ILiteralLikeNode, IPrimaryExpression
 public class LiteralExpression : Node, ILiteralExpression, IPrimaryExpression
 {
   public object LiteralExpressionBrand { get; set; }
-  public string Text { get; set; }
+  public string? Text { get; set; }
   public bool IsUnterminated { get; set; }
   public bool HasExtendedUnicodeEscape { get; set; }
   public bool IsOctalLiteral { get; set; }
@@ -1511,14 +1511,14 @@ public class SpreadElement : Expression
     Kind = SyntaxKind.SpreadElement;
   }
 
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public class ObjectLiteralExpressionBase<T> : Node, IPrimaryExpression, IDeclaration
 {
   public NodeArray<T> Properties { get; set; }
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public object PrimaryExpressionBrand { get; set; }
   public object MemberExpressionBrand { get; set; }
   public object LeftHandSideExpressionBrand { get; set; }
@@ -1545,9 +1545,9 @@ public class PropertyAccessExpression : Node, IMemberExpression, IDeclaration,
     Kind = SyntaxKind.PropertyAccessExpression;
   }
 
-  public IExpression Expression { get; set; } //LeftHandSideExpression
+  public IExpression? Expression { get; set; } //LeftHandSideExpression
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public object MemberExpressionBrand { get; set; }
   public object LeftHandSideExpressionBrand { get; set; }
   public object IncrementExpressionBrand { get; set; }
@@ -1571,7 +1571,7 @@ public class ElementAccessExpression : MemberExpression
     Kind = SyntaxKind.ElementAccessExpression;
   }
 
-  public IExpression Expression { get; set; } //LeftHandSideExpression
+  public IExpression? Expression { get; set; } //LeftHandSideExpression
   public IExpression ArgumentExpression { get; set; }
 }
 
@@ -1586,11 +1586,11 @@ public class CallExpression : Node, IMemberExpression, IDeclaration
     Kind = SyntaxKind.CallExpression;
   }
 
-  public /*LeftHandSideExpression*/ IExpression Expression { get; set; }
+  public /*LeftHandSideExpression*/ IExpression? Expression { get; set; }
   public NodeArray<ITypeNode> TypeArguments { get; set; }
   public NodeArray<IExpression> Arguments { get; set; }
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public object LeftHandSideExpressionBrand { get; set; }
   public object IncrementExpressionBrand { get; set; }
   public object UnaryExpressionBrand { get; set; }
@@ -1609,7 +1609,7 @@ public class ExpressionWithTypeArguments : TypeNode
     Kind = SyntaxKind.ExpressionWithTypeArguments;
   }
 
-  public /*LeftHandSideExpression*/ IExpression Expression { get; set; }
+  public /*LeftHandSideExpression*/ IExpression? Expression { get; set; }
   public NodeArray<ITypeNode> TypeArguments { get; set; }
 }
 
@@ -1630,8 +1630,8 @@ public class TaggedTemplateExpression : MemberExpression
     Kind = SyntaxKind.TaggedTemplateExpression;
   }
 
-  public IExpression Tag { get; set; } //LeftHandSideExpression
-  public Node Template { get; set; } //TemplateLiteral
+  public IExpression? Tag { get; set; } //LeftHandSideExpression
+  public Node? Template { get; set; } //TemplateLiteral
 }
 
 public class AsExpression : Expression
@@ -1641,7 +1641,7 @@ public class AsExpression : Expression
     Kind = SyntaxKind.AsExpression;
   }
 
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
   public ITypeNode Type { get; set; }
 }
 
@@ -1653,7 +1653,7 @@ public class TypeAssertion : UnaryExpression
   }
 
   public ITypeNode Type { get; set; }
-  public /*UnaryExpression*/ IExpression Expression { get; set; }
+  public /*UnaryExpression*/ IExpression? Expression { get; set; }
 }
 
 public class NonNullExpression : /*LeftHandSideExpression*/MemberExpression
@@ -1663,7 +1663,7 @@ public class NonNullExpression : /*LeftHandSideExpression*/MemberExpression
     Kind = SyntaxKind.NonNullExpression;
   }
 
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public class MetaProperty : PrimaryExpression
@@ -1674,7 +1674,7 @@ public class MetaProperty : PrimaryExpression
   }
 
   public SyntaxKind KeywordToken { get; set; }
-  public Identifier Name { get; set; }
+  public Identifier? Name { get; set; }
 }
 
 public class JsxElement : PrimaryExpression, IJsxChild
@@ -1713,7 +1713,7 @@ public class JsxSelfClosingElement : PrimaryExpression, IJsxChild
     Kind = SyntaxKind.JsxSelfClosingElement;
   }
 
-  public IJsxTagNameExpression TagName { get; set; }
+  public IJsxTagNameExpression? TagName { get; set; }
   public JsxAttributes Attributes { get; set; }
 }
 
@@ -1724,7 +1724,7 @@ public class JsxAttribute : ObjectLiteralElement
     Kind = SyntaxKind.JsxAttribute;
   }
 
-  public Node Initializer { get; set; } // StringLiteral | JsxExpression
+  public Node? Initializer { get; set; } // StringLiteral | JsxExpression
 }
 
 public class JsxSpreadAttribute : ObjectLiteralElement
@@ -1734,7 +1734,7 @@ public class JsxSpreadAttribute : ObjectLiteralElement
     Kind = SyntaxKind.JsxSpreadAttribute;
   }
 
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public class JsxClosingElement : Node
@@ -1744,7 +1744,7 @@ public class JsxClosingElement : Node
     Kind = SyntaxKind.JsxClosingElement;
   }
 
-  public IJsxTagNameExpression TagName { get; set; }
+  public IJsxTagNameExpression? TagName { get; set; }
 }
 
 public class JsxExpression : Expression, IJsxChild
@@ -1755,7 +1755,7 @@ public class JsxExpression : Expression, IJsxChild
   }
 
   public Token DotDotDotToken { get; set; } // Token<SyntaxKind.DotDotDotToken>
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public class JsxText : Node, IJsxChild
@@ -1825,7 +1825,7 @@ public class MissingDeclaration : Node, IDeclarationStatement, IClassElement,
   }
 
   public object ClassElementBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public object DeclarationBrand { get; set; }
   public object StatementBrand { get; set; }
   public object ObjectLiteralBrandBrand { get; set; }
@@ -1876,13 +1876,13 @@ public class IfStatement : Statement
   }
 
   public IExpression Expression { get; set; }
-  public IStatement ThenStatement { get; set; }
+  public IStatement? ThenStatement { get; set; }
   public IStatement ElseStatement { get; set; }
 }
 
 public class IterationStatement : Statement
 {
-  public IStatement Statement { get; set; }
+  public IStatement? Statement { get; set; }
 }
 
 public class DoStatement : IterationStatement
@@ -1947,7 +1947,7 @@ public class BreakStatement : Statement, IBreakOrContinueStatement
     Kind = SyntaxKind.BreakStatement;
   }
 
-  public Identifier Label { get; set; }
+  public Identifier? Label { get; set; }
 }
 
 public class ContinueStatement : Statement, IBreakOrContinueStatement
@@ -1957,7 +1957,7 @@ public class ContinueStatement : Statement, IBreakOrContinueStatement
     Kind = SyntaxKind.ContinueStatement;
   }
 
-  public Identifier Label { get; set; }
+  public Identifier? Label { get; set; }
 }
 
 public class ReturnStatement : Statement
@@ -1978,7 +1978,7 @@ public class WithStatement : Statement
   }
 
   public IExpression Expression { get; set; }
-  public IStatement Statement { get; set; }
+  public IStatement? Statement { get; set; }
 }
 
 public class SwitchStatement : Statement
@@ -2032,7 +2032,7 @@ public class LabeledStatement : Statement
   }
 
   public Identifier Label { get; set; }
-  public IStatement Statement { get; set; }
+  public IStatement? Statement { get; set; }
 }
 
 public class ThrowStatement : Statement
@@ -2052,9 +2052,9 @@ public class TryStatement : Statement
     Kind = SyntaxKind.TryStatement;
   }
 
-  public Block TryBlock { get; set; }
+  public Block? TryBlock { get; set; }
   public CatchClause CatchClause { get; set; }
-  public Block FinallyBlock { get; set; }
+  public Block? FinallyBlock { get; set; }
 }
 
 public class CatchClause : Node
@@ -2065,7 +2065,7 @@ public class CatchClause : Node
   }
 
   public VariableDeclaration VariableDeclaration { get; set; }
-  public Block Block { get; set; }
+  public Block? Block { get; set; }
 }
 
 public interface IClassLikeDeclaration : IDeclaration
@@ -2089,7 +2089,7 @@ public class ClassDeclaration : Node, IClassLikeDeclaration, IDeclarationStateme
     Kind = SyntaxKind.ClassDeclaration;
   }
 
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<HeritageClause> HeritageClauses { get; set; }
   public NodeArray<IClassElement> Members { get; set; }
@@ -2104,7 +2104,7 @@ public class ClassExpression : Node, IClassLikeDeclaration, IPrimaryExpression
     Kind = SyntaxKind.ClassExpression;
   }
 
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<HeritageClause> HeritageClauses { get; set; }
   public NodeArray<IClassElement> Members { get; set; }
@@ -2228,7 +2228,7 @@ public class ImportEqualsDeclaration : DeclarationStatement
     Kind = SyntaxKind.ImportEqualsDeclaration;
   }
 
-  public /*ModuleReference*/ INode ModuleReference { get; set; }
+  public /*ModuleReference*/ INode? ModuleReference { get; set; }
 }
 
 public class ExternalModuleReference : Node
@@ -2238,7 +2238,7 @@ public class ExternalModuleReference : Node
     Kind = SyntaxKind.ExternalModuleReference;
   }
 
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public class ImportDeclaration : Statement
@@ -2249,7 +2249,7 @@ public class ImportDeclaration : Statement
   }
 
   public ImportClause ImportClause { get; set; }
-  public IExpression ModuleSpecifier { get; set; }
+  public IExpression? ModuleSpecifier { get; set; }
 }
 
 public class ImportClause : Declaration
@@ -2286,7 +2286,7 @@ public class ExportDeclaration : DeclarationStatement
   }
 
   public NamedExports ExportClause { get; set; }
-  public IExpression ModuleSpecifier { get; set; }
+  public IExpression? ModuleSpecifier { get; set; }
 }
 
 public class NamedImports : Node, INamedImportsOrExports, INamedImportBindings
@@ -2316,7 +2316,7 @@ public class ImportSpecifier : Declaration, IMportOrExportSpecifier
     Kind = SyntaxKind.ImportSpecifier;
   }
 
-  public Identifier PropertyName { get; set; }
+  public Identifier? PropertyName { get; set; }
 }
 
 public class ExportSpecifier : Declaration, IMportOrExportSpecifier
@@ -2326,7 +2326,7 @@ public class ExportSpecifier : Declaration, IMportOrExportSpecifier
     Kind = SyntaxKind.ExportSpecifier;
   }
 
-  public Identifier PropertyName { get; set; }
+  public Identifier? PropertyName { get; set; }
 }
 
 public class ExportAssignment : DeclarationStatement
@@ -2337,7 +2337,7 @@ public class ExportAssignment : DeclarationStatement
   }
 
   public bool IsExportEquals { get; set; }
-  public IExpression Expression { get; set; }
+  public IExpression? Expression { get; set; }
 }
 
 public class FileReference : TextRange
@@ -2487,7 +2487,7 @@ public class JsDocFunctionType : Node, IJsDocType, ISignatureDeclaration
 
   public object JsDocTypeBrand { get; set; }
   public object TypeNodeBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public NodeArray<TypeParameterDeclaration> TypeParameters { get; set; }
   public NodeArray<ParameterDeclaration> Parameters { get; set; }
   public ITypeNode Type { get; set; }
@@ -2622,7 +2622,7 @@ public class JsDocTypedefTag : Node, IJsDocTag, IDeclaration
   public JsDocTypeExpression TypeExpression { get; set; }
   public JsDocTypeLiteral JsDocTypeLiteral { get; set; }
   public object DeclarationBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public AtToken AtToken { get; set; }
   public Identifier TagName { get; set; }
   public string Comment { get; set; }
@@ -2640,7 +2640,7 @@ public class JsDocPropertyTag : Node, IJsDocTag, ITypeElement
   public Identifier TagName { get; set; }
   public string Comment { get; set; }
   public object TypeElementBrand { get; set; }
-  public INode Name { get; set; }
+  public INode? Name { get; set; }
   public QuestionToken QuestionToken { get; set; }
   public object DeclarationBrand { get; set; }
 }
@@ -2757,7 +2757,7 @@ public class AmdDependency
 public interface ISourceFileLike
 {
   string Text { get; set; }
-  int[] LineMap { get; set; }
+  int[]? LineMap { get; set; }
 }
 
 public class SourceFile : Declaration, ISourceFileLike
@@ -2767,7 +2767,7 @@ public class SourceFile : Declaration, ISourceFileLike
     Kind = SyntaxKind.SourceFile;
   }
 
-  public NodeArray<IStatement> Statements { get; set; }
+  public NodeArray<IStatement?> Statements { get; set; }
   public Token EndOfFileToken { get; set; } // Token<SyntaxKind.EndOfFileToken>
   public string FileName { get; set; }
   public AmdDependency[] AmdDependencies { get; set; }
@@ -2780,9 +2780,9 @@ public class SourceFile : Declaration, ISourceFileLike
   public bool HasNoDefaultLib { get; set; }
   public ScriptTarget LanguageVersion { get; set; }
   public ScriptKind ScriptKind { get; set; }
-  public INode ExternalModuleIndicator { get; set; }
+  public INode? ExternalModuleIndicator { get; set; }
   public Node CommonJsModuleIndicator { get; set; }
-  public List<string> Identifiers { get; set; }
+  public List<string?> Identifiers { get; set; }
   public int NodeCount { get; set; }
   public int IdentifierCount { get; set; }
   public int SymbolCount { get; set; }
@@ -2798,7 +2798,7 @@ public class SourceFile : Declaration, ISourceFileLike
   public string[] AmbientModuleNames { get; set; }
   public TextRange CheckJsDirective { get; set; } // CheckJsDirective
   public string Text { get; set; }
-  public int[] LineMap { get; set; }
+  public int[]? LineMap { get; set; }
 }
 
 public class Bundle : Node
@@ -3336,7 +3336,7 @@ public class Signature
   public Signature[] UnionSignatures { get; set; }
   public Signature ErasedSignatureCache { get; set; }
   public ObjectType IsolatedSignatureType { get; set; }
-  public ITypePredicate TypePredicate { get; set; }
+  public TypePredicate TypePredicate { get; set; }
   public Map<Signature> Instantiations { get; set; }
 }
 
