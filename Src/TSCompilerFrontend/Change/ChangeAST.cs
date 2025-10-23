@@ -6,16 +6,11 @@ using TSCompilerFrontend.TsTypes;
 
 namespace TSCompilerFrontend.Change;
 
-public class ChangeAST
+public class ChangeAst(ICollection<NodeChangeItem>? changeItems = null)
 {
-  private readonly ICollection<NodeChangeItem> _nodeChangeItems;
+  private readonly ICollection<NodeChangeItem> _nodeChangeItems = changeItems ?? [];
 
-  public ChangeAST(ICollection<NodeChangeItem> changeItems = null)
-  {
-    _nodeChangeItems = changeItems ?? new List<NodeChangeItem>();
-  }
-
-  public static string Change(string source, IEnumerable<NodeChangeItem> changeItems)
+  private static string Change(string source, IEnumerable<NodeChangeItem> changeItems)
   {
     var changes = changeItems.OrderBy(v => v.Node.Pos).ThenBy(v2 => v2.ChangeType);
     var sb = new StringBuilder();
@@ -51,9 +46,7 @@ public class ChangeAST
     }
 
     if (pos < source.Length) sb.Append(source.Substring(pos));
-    var newSource = sb.ToString();
-
-    return newSource;
+   return sb.ToString();
   }
 
   public string GetChangedSource(string baseSource)
@@ -72,8 +65,7 @@ public class ChangeAST
 
     if (newValue != node.GetTextWithComments())
     {
-      var nodeCh = new NodeChangeItem
-        { ChangeType = NodeChangeType.Change, Node = node, NewValue = newValue };
+      var nodeCh = new NodeChangeItem(node, NodeChangeType.Change, newValue);
       _nodeChangeItems.Add(nodeCh);
     }
     else
@@ -84,48 +76,31 @@ public class ChangeAST
 
   public void InsertBefore(INode node, string newValue)
   {
-    if (node != null)
-    {
       //if (_nodeChangeItems.Any(v => v.Node.Pos < node.Pos && v.Node.End > node.Pos))
       //    throw new Exception("ChangeItems already have node that contains this node. Delete first");
 
-      var nodeCh = new NodeChangeItem
-      {
-        ChangeType = NodeChangeType.InsertBefore,
-        Node = node,
-        NewValue = newValue
-      };
+      var nodeCh = new NodeChangeItem(node, NodeChangeType.InsertBefore,
+        newValue);
       _nodeChangeItems.Add(nodeCh);
-    }
   }
 
   public void InsertAfter(INode node, string newValue)
   {
-    if (node != null)
-    {
       //if (_nodeChangeItems.Any(v => v.Node.Pos < node.Pos && v.Node.End > node.Pos))
       //    throw new Exception("ChangeItems already have node that contains this node. Delete first");
 
-      var nodeCh = new NodeChangeItem
-      {
-        ChangeType = NodeChangeType.InsertAfter,
-        Node = node,
-        NewValue = newValue
-      };
+      var nodeCh = new NodeChangeItem(node, NodeChangeType.InsertAfter, newValue);
       _nodeChangeItems.Add(nodeCh);
-    }
   }
 
   public void Delete(INode node)
   {
-    if (node != null)
-    {
+
       if (_nodeChangeItems.Any(v => v.Node.Pos < node.Pos && v.Node.End > node.Pos))
         throw new Exception(
           "ChangeItems already have node that contains this node. Delete first");
 
-      var nodeCh = new NodeChangeItem { ChangeType = NodeChangeType.Delete, Node = node };
+      var nodeCh = new NodeChangeItem(node, NodeChangeType.Delete);
       _nodeChangeItems.Add(nodeCh);
     }
-  }
 }

@@ -9,7 +9,7 @@ namespace TSCompilerFrontend.Parser;
 
 public class Utilities
 {
-  public static int GetFullWidth(INode node)
+  public static int GetFullWidth(INode? node)
   {
     return (node.End ?? 0) - (node.Pos ?? 0);
   }
@@ -44,7 +44,7 @@ public class Utilities
     return node.Pos == node.End && node.Pos >= 0 && node.Kind != SyntaxKind.EndOfFileToken;
   }
 
-  public static string GetTextOfNodeFromSourceText(string sourceText, INode node)
+  public static string? GetTextOfNodeFromSourceText(string? sourceText, INode node)
   {
     if (NodeIsMissing(node))
       return "";
@@ -53,7 +53,7 @@ public class Utilities
     return sourceText.substring(SkipTriviaM(sourceText, node.Pos ?? 0), node.End);
   }
 
-  public static string EscapeIdentifier(string identifier)
+  public static string? EscapeIdentifier(string? identifier)
   {
     return identifier.Length >= 2 && identifier.charCodeAt(0) == (int)CharacterCodes._ &&
            identifier.charCodeAt(1) == (int)CharacterCodes._
@@ -130,17 +130,17 @@ public class Utilities
     return node;
   }
 
-  public static bool HasModifiers(Node node)
+  public static bool HasModifiers(Node? node)
   {
     return GetModifierFlags(node) != ModifierFlags.None;
   }
 
-  public static bool HasModifier(INode node, ModifierFlags flags)
+  public static bool HasModifier(INode? node, ModifierFlags flags)
   {
     return (GetModifierFlags(node) & flags) != 0;
   }
 
-  public static ModifierFlags GetModifierFlags(INode node)
+  public static ModifierFlags GetModifierFlags(INode? node)
   {
     if ((node.ModifierFlagsCache & ModifierFlags.HasComputedFlags) != 0)
       return node.ModifierFlagsCache & ~ModifierFlags.HasComputedFlags;
@@ -230,7 +230,7 @@ public class Utilities
            || kind == SyntaxKind.MetaProperty;
   }
 
-  public static bool IsLeftHandSideExpression(IExpression node)
+  public static bool IsLeftHandSideExpression(IExpression? node)
   {
     return IsLeftHandSideExpressionKind(SkipPartiallyEmittedExpressions(node).Kind);
   }

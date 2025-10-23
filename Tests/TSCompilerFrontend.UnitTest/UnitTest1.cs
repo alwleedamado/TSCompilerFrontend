@@ -1,14 +1,18 @@
 ﻿using System.Net.Security;
+using TSCompilerFrontend.TsTypes;
 
 namespace TSCompilerFrontend.UnitTest;
 
 public class Tests
 {
-  private ITypeScriptAST _ast;
+  private IAst _ast;
+
+  private const string Code =
+    "import { Component } from '@angular/core';\nimport { RouterOutlet } from '@angular/router';\n\n@Component({\n  selector: 'app-root',\n  standalone: true,\n  imports: [RouterOutlet],\n  templateUrl: './app.component.html',\n  styleUrl: './app.component.scss'\n})\nexport class AppComponent {\n  title = 'angular-template';\n}\n";
   [SetUp]
   public void Setup()
   {
-    _ast = new TypeScriptAST(File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\app.component.ts"));
+    _ast = new Ast(Code);
   }
 
   [Test]

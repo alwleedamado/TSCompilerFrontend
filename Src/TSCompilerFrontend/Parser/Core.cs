@@ -47,7 +47,7 @@ public static class Core
   public static ScriptKind EnsureScriptKind(string fileName, ScriptKind scriptKind)
   {
     // Using scriptKind as a condition handles both:
-    // - 'scriptKind' is unspecified and thus it is `null`
+    // - 'scriptKind' is unspecified, and thus it is `null`
     // - 'scriptKind' is set and it is `Unknown` (0)
     // If the 'scriptKind' is 'null' or 'Unknown' then we attempt
     // to get the ScriptKind from the file name. If it cannot be resolved
@@ -59,7 +59,7 @@ public static class Core
   private static ScriptKind GetScriptKindFromFileName(string fileName)
   {
     var ext = Path.GetExtension(fileName);
-    return ext?.ToLower() switch
+    return ext.ToLower() switch
     {
       ".js" => ScriptKind.Js,
       ".jsx" => ScriptKind.Jsx,
@@ -125,7 +125,7 @@ public static class Core
         {
           // A part may be an empty string (which is 'falsy') if the path had consecutive slashes,
           // e.g. "path//file.ts".  Drop these before re-joining the parts.
-          if (part != null) normalized.Add(part);
+          if (!string.IsNullOrEmpty(part)) normalized.Add(part);
         }
       }
 
@@ -169,8 +169,8 @@ public static class Core
       Length = length,
 
       MessageText = text,
-      Category = message?.Category ?? DiagnosticCategory.Unknown,
-      Code = message?.Code ?? 0
+      Category = message.Category,
+      Code = message.Code
     };
   }
 

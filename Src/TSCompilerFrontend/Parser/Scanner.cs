@@ -12,7 +12,7 @@ public delegate void ErrorCallback(DiagnosticMessage message, int? length);
 
 public class Scanner
 {
-  public static Dictionary<string, SyntaxKind> TextToToken = new Dictionary<string, SyntaxKind>
+  private static readonly Dictionary<string, SyntaxKind> TextToToken = new Dictionary<string, SyntaxKind>
   {
     { "abstract", SyntaxKind.AbstractKeyword },
     { "any", SyntaxKind.AnyKeyword },
@@ -141,8 +141,8 @@ public class Scanner
     { "@", SyntaxKind.AtToken }
   };
 
-  private static readonly int _mergeConflictMarkerLength = "<<<<<<<".Length;
-  private static readonly Regex _shebangTriviaRegex = new Regex("/^#!.*/");
+  private static readonly int MergeConflictMarkerLength = "<<<<<<<".Length;
+  private static readonly Regex ShebangTriviaRegex = new Regex("/^#!.*/");
   private readonly bool _skipTrivia;
 
   // end of text
@@ -158,14 +158,14 @@ public class Scanner
 
   // Start position of whitespace before current token
   private int _startPos;
-  private string _text;
+  private string? _text;
 
   private SyntaxKind _token;
   private bool _tokenIsUnterminated;
 
   // Start position of text of current token
   private int _tokenPos;
-  private string _tokenValue;
+  private string? _tokenValue;
 
   public int[] UnicodeEs3IdentifierPart =
   {
@@ -505,9 +505,10 @@ public class Scanner
   };
 
   public Scanner(ScriptTarget languageVersion, bool skipTrivia, LanguageVariant languageVariant,
-    string text,
-    ErrorCallback onError = null, int start = 0, int? length = null)
+    string? text,
+    ErrorCallback? onError = null, int start = 0, int? length = null)
   {
+    SetOnError(onError);
     _languageVersion = languageVersion;
     _languageVariant = languageVariant;
     _skipTrivia = skipTrivia;
@@ -519,7 +520,7 @@ public class Scanner
   }
 
   private int TokenInt => (int)_token;
-  public event ErrorCallback OnError;
+  public event ErrorCallback? OnError;
 
   public int GetStartPos()
   {
@@ -541,12 +542,12 @@ public class Scanner
     return _tokenPos;
   }
 
-  public string GetTokenText()
+  public string? GetTokenText()
   {
     return _text.substring(_tokenPos, _pos);
   }
 
-  public string GetTokenValue()
+  public string? GetTokenValue()
   {
     return _tokenValue;
   }
@@ -616,7 +617,7 @@ public class Scanner
       : LookupInUnicodeMap(code, UnicodeEs3IdentifierPart);
   }
 
-  public static string TokenToString(SyntaxKind t)
+  public static string? TokenToString(SyntaxKind t)
   {
     return TextToToken.FirstOrDefault(v => v.Value == t).Key;
   }
@@ -626,7 +627,7 @@ public class Scanner
     return TextToToken[s];
   }
 
-  public List<int> ComputeLineStarts(string text)
+  private List<int> ComputeLineStarts(string text)
   {
     var result = new List<int>();
     var pos = 0;
@@ -671,13 +672,13 @@ public class Scanner
     return lineStarts[line] + character;
   }
 
-  public int[] GetLineStarts(ISourceFileLike sourceFile)
+  private int[] GetLineStarts(ISourceFileLike sourceFile)
   {
     return sourceFile.LineMap ??
            (sourceFile.LineMap = ComputeLineStarts(sourceFile.Text).ToArray());
   }
 
-  public LineAndCharacter ComputeLineAndCharacterOfPosition(int[] lineStarts, int position)
+  private LineAndCharacter ComputeLineAndCharacterOfPosition(int[] lineStarts, int position)
   {
     var lineNumber = BinarySearch(lineStarts, position);
     if (lineNumber < 0)
@@ -782,7 +783,7 @@ public class Scanner
     }
   }
 
-  public static int SkipTriviaM(string text, int pos, bool stopAfterLineBreak = false,
+  public static int SkipTriviaM(string? text, int pos, bool stopAfterLineBreak = false,
     bool stopAtComments = false)
   {
     if (PositionIsSynthesized(pos)) return pos;
@@ -875,31 +876,29 @@ public class Scanner
     }
   }
 
-  public static bool IsConflictMarkerTrivia(string text, int pos)
+  public static bool IsConflictMarkerTrivia(string? text, int pos)
   {
     Debug.Assert(pos >= 0);
     if (pos == 0 || IsLineBreak(text.charCodeAt(pos - 1)))
     {
       var ch = text.charCodeAt(pos);
-      if (pos + _mergeConflictMarkerLength < text.Length)
+      if (pos + MergeConflictMarkerLength < text.Length)
       {
-        for (var i = 0; i < _mergeConflictMarkerLength; i++)
+        for (var i = 0; i < MergeConflictMarkerLength; i++)
           if (text.charCodeAt(pos + i) != ch)
             return false;
-
-        ;
         return ch == (int)CharacterCodes.equals ||
-               text.charCodeAt(pos + _mergeConflictMarkerLength) == (int)CharacterCodes.Space;
+               text.charCodeAt(pos + MergeConflictMarkerLength) == (int)CharacterCodes.Space;
       }
     }
 
     return false;
   }
 
-  public static int ScanConflictMarkerTrivia(string text, int pos,
-    Action<DiagnosticMessage, int> error = null)
+  public static int ScanConflictMarkerTrivia(string? text, int pos,
+    Action<DiagnosticMessage, int>? error = null)
   {
-    error?.Invoke(Diagnostics.Merge_conflict_marker_encountered, _mergeConflictMarkerLength);
+    error?.Invoke(Diagnostics.Merge_conflict_marker_encountered, MergeConflictMarkerLength);
     var ch = text.charCodeAt(pos);
     var len = text.Length;
     if (ch == (int)CharacterCodes.LessThan || ch == (int)CharacterCodes.GreaterThan)
@@ -917,24 +916,24 @@ public class Scanner
     return pos;
   }
 
-  public static bool IsShebangTrivia(string text, int pos)
+  public static bool IsShebangTrivia(string? text, int pos)
   {
     // Shebangs check must only be done at the start of the file
     Debug.Assert(pos == 0);
-    return _shebangTriviaRegex.test(text);
+    return ShebangTriviaRegex.test(text);
   }
 
-  public static int ScanShebangTrivia(string text, int pos)
+  public static int ScanShebangTrivia(string? text, int pos)
   {
-    var shebang = _shebangTriviaRegex.exec(text)[0];
+    var shebang = ShebangTriviaRegex.exec(text)[0];
     pos = pos + shebang.Length;
     return pos;
   }
 
-  public static U IterateCommentRanges<T, U>(bool reduce, string text, int pos, bool trailing,
-    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, U memo), U> cb,
+  private static TU? IterateCommentRanges<T, TU>(bool reduce, string text, int pos, bool trailing,
+    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, TU? memo), TU> cb,
     T state,
-    U initial = default)
+    TU? initial = default)
   {
     var pendingPos = 0;
     var pendingEnd = 0;
@@ -1007,7 +1006,6 @@ public class Scanner
                 if (!reduce && accumulator != null)
                   // If we are not reducing and we have a truthy result, return it.
                   return accumulator;
-                hasPendingCommentRange = false;
               }
 
               pendingPos = startPos;
@@ -1040,35 +1038,35 @@ public class Scanner
     return accumulator;
   }
 
-  public U ForEachLeadingCommentRange<T, U>(string text, int pos,
-    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, U memo), U> cb,
+  public TU? ForEachLeadingCommentRange<T, TU>(string text, int pos,
+    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, TU? memo), TU> cb,
     T state)
   {
     return IterateCommentRanges( /*reduce*/ false, text, pos, /*trailing*/ false, cb, state);
   }
 
-  public U ForEachTrailingCommentRange<T, U>(string text, int pos,
-    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, U memo), U> cb,
+  public TU? ForEachTrailingCommentRange<T, TU>(string text, int pos,
+    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, TU? memo), TU> cb,
     T state)
   {
     return IterateCommentRanges( /*reduce*/ false, text, pos, /*trailing*/ true, cb, state);
   }
 
-  public static U ReduceEachLeadingCommentRange<T, U>(string text, int pos,
-    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, U memo), U> cb,
+  private static TU? ReduceEachLeadingCommentRange<T, TU>(string text, int pos,
+    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, TU? memo), TU> cb,
     T state,
-    U initial)
+    TU? initial)
   {
-    return IterateCommentRanges( /*reduce*/ true, text, pos, /*trailing*/ false, cb, state,
+    return IterateCommentRanges(true, text, pos,false, cb, state,
       initial);
   }
 
-  public static U ReduceEachTrailingCommentRange<T, U>(string text, int pos,
-    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, U memo), U> cb,
+  private static TU? ReduceEachTrailingCommentRange<T, TU>(string text, int pos,
+    Func<(int pos, int end, CommentKind kind, bool hasTrailingNewLine, T state, TU? memo), TU> cb,
     T state,
-    U initial)
+    TU? initial)
   {
-    return IterateCommentRanges( /*reduce*/ true, text, pos, /*trailing*/ true, cb, state,
+    return IterateCommentRanges(true, text, pos,true, cb, state,
       initial);
   }
 
@@ -1077,7 +1075,6 @@ public class Scanner
       List<CommentRange> comments)
       cb)
   {
-    if (cb.comments == null) cb.comments = new List<CommentRange>();
     cb.comments.Add(new CommentRange
       { Kind = cb.kind, Pos = cb.pos, End = cb.end, HasTrailingNewLine = cb.hasTrailingNewLine });
     return cb.comments;
@@ -1097,14 +1094,14 @@ public class Scanner
       null) ?? new List<CommentRange>();
   }
 
-  public string GetShebang(string text)
+  public string? GetShebang(string? text)
   {
-    return _shebangTriviaRegex.test(text)
-      ? _shebangTriviaRegex.exec(text)[0]
+    return ShebangTriviaRegex.test(text)
+      ? ShebangTriviaRegex.exec(text)[0]
       : null;
   }
 
-  public bool IsIdentifierStart(int ch, ScriptTarget languageVersion)
+  private bool IsIdentifierStart(int ch, ScriptTarget languageVersion)
   {
     return (ch >= (int)CharacterCodes.A && ch <= (int)CharacterCodes.Z) ||
            (ch >= (int)CharacterCodes.a && ch <= (int)CharacterCodes.z) ||
@@ -1113,7 +1110,7 @@ public class Scanner
             IsUnicodeIdentifierStart(ch, languageVersion));
   }
 
-  public bool IsIdentifierPart(int ch, ScriptTarget languageVersion)
+  private bool IsIdentifierPart(int ch, ScriptTarget languageVersion)
   {
     return (ch >= (int)CharacterCodes.A && ch <= (int)CharacterCodes.Z) ||
            (ch >= (int)CharacterCodes.a && ch <= (int)CharacterCodes.z) ||
@@ -1137,12 +1134,12 @@ public class Scanner
 
   // export function createScanner()
 
-  public void Error(DiagnosticMessage message, int length = 0)
+  private void Error(DiagnosticMessage message, int length = 0)
   {
     OnError?.Invoke(message, length);
   }
 
-  public string ScanNumber()
+  private string? ScanNumber()
   {
     var start = _pos;
     while (IsDigit(_text.charCodeAt(_pos))) _pos++;
@@ -1174,24 +1171,24 @@ public class Scanner
     return "" + _text.substring(start, end);
   }
 
-  public int ScanOctalDigits()
+  private int ScanOctalDigits()
   {
     var start = _pos;
     while (IsOctalDigit(_text.charCodeAt(_pos))) _pos++;
     return int.Parse(_text.substring(start, _pos));
   }
 
-  public int ScanExactNumberOfHexDigits(int count)
+  private int ScanExactNumberOfHexDigits(int count)
   {
     return ScanHexDigits( /*minCount*/ count, /*scanAsManyAsPossible*/ false);
   }
 
-  public int ScanMinimumNumberOfHexDigits(int count)
+  private int ScanMinimumNumberOfHexDigits(int count)
   {
     return ScanHexDigits( /*minCount*/ count, /*scanAsManyAsPossible*/ true);
   }
 
-  public int ScanHexDigits(int minCount, bool scanAsManyAsPossible)
+  private int ScanHexDigits(int minCount, bool scanAsManyAsPossible)
   {
     var digits = 0;
     var value = 0;
@@ -1214,7 +1211,7 @@ public class Scanner
     return value;
   }
 
-  public string ScanString(bool allowEscapes = true)
+  private string? ScanString(bool allowEscapes = true)
   {
     var quote = _text.charCodeAt(_pos);
     _pos++;
@@ -1260,7 +1257,7 @@ public class Scanner
     return result;
   }
 
-  public SyntaxKind ScanTemplateAndSetTokenValue()
+  private SyntaxKind ScanTemplateAndSetTokenValue()
   {
     var startedWithBacktick = _text.charCodeAt(_pos) == (int)CharacterCodes.Backtick;
     _pos++;
@@ -1327,7 +1324,7 @@ public class Scanner
     return resultingToken;
   }
 
-  public string ScanEscapeSequence()
+  private string? ScanEscapeSequence()
   {
     _pos++;
     if (_pos >= _end)
@@ -1384,7 +1381,7 @@ public class Scanner
     }
   }
 
-  public string ScanHexadecimalEscape(int numDigits)
+  private string? ScanHexadecimalEscape(int numDigits)
   {
     var escapedValue = ScanExactNumberOfHexDigits(numDigits);
     if (escapedValue >= 0) return String.fromCharCode(escapedValue);
@@ -1393,7 +1390,7 @@ public class Scanner
     return "";
   }
 
-  public string ScanExtendedUnicodeEscape()
+  public string? ScanExtendedUnicodeEscape()
   {
     var escapedValue = ScanMinimumNumberOfHexDigits(1);
     var isInvalidExtendedEscape = false;
@@ -1429,7 +1426,7 @@ public class Scanner
     return Utf16EncodeAsString(escapedValue);
   }
 
-  public string Utf16EncodeAsString(int codePoint)
+  public string? Utf16EncodeAsString(int codePoint)
   {
     Debug.Assert(0x0 <= codePoint && codePoint <= 0x10FFFF);
     if (codePoint <= 65535) return String.fromCharCode(codePoint);
@@ -1452,7 +1449,7 @@ public class Scanner
     return -1;
   }
 
-  public string ScanIdentifierParts()
+  public string? ScanIdentifierParts()
   {
     var result = "";
     var start = _pos;
@@ -1563,12 +1560,10 @@ public class Scanner
             _pos++;
           _token = SyntaxKind.NewLineTrivia;
           return _token;
-          goto caseLabel6;
         case (int)CharacterCodes.Tab:
         case (int)CharacterCodes.VerticalTab:
         case (int)CharacterCodes.FormFeed:
         case (int)CharacterCodes.Space:
-          caseLabel6:
           if (_skipTrivia)
           {
             _pos++;
@@ -1578,9 +1573,7 @@ public class Scanner
           while (_pos < _end && IsWhiteSpaceSingleLine(_text.charCodeAt(_pos))) _pos++;
           _token = SyntaxKind.WhitespaceTrivia;
           return _token;
-          goto caseLabel7;
         case (int)CharacterCodes.Exclamation:
-          caseLabel7:
           if (_text.charCodeAt(_pos + 1) == (int)CharacterCodes.equals)
           {
             if (_text.charCodeAt(_pos + 2) == (int)CharacterCodes.equals)
@@ -2396,19 +2389,20 @@ public class Scanner
     return SpeculationHelper(callback, /*isLookahead*/ false);
   }
 
-  public string GetText()
+  public string? GetText()
   {
     return _text;
   }
 
-  public void SetText(string newText, int? start = null, int? length = null)
+  public void SetText(string? newText, int? start = null, int? length = null)
   {
-    _text = newText ?? "";
-    _end = length == null ? _text.Length : (int)start + (int)length;
-    SetTextPos(start ?? 0);
+    _text = newText;
+    start ??= 0;
+    _end = length == null ? _text?.Length ?? 0 : (int)start + (int)length;
+    SetTextPos((int)start);
   }
 
-  public void SetOnError(ErrorCallback errorCallback)
+  public void SetOnError(ErrorCallback? errorCallback)
   {
     OnError = errorCallback;
   }
