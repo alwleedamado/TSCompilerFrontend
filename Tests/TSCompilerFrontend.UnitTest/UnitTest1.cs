@@ -7,12 +7,12 @@ public class Tests
 {
   private IAst _ast;
 
-  private const string Code =
-    "import { Component } from '@angular/core';\nimport { RouterOutlet } from '@angular/router';\n\n@Component({\n  selector: 'app-root',\n  standalone: true,\n  imports: [RouterOutlet],\n  templateUrl: './app.component.html',\n  styleUrl: './app.component.scss'\n})\nexport class AppComponent {\n  title = 'angular-template';\n}\n";
   [SetUp]
   public void Setup()
   {
-    _ast = new Ast(Code);
+    var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
+      "Ts/freelancer-management-client/src", "app/app.component.ts");
+           _ast = new Ast(File.ReadAllText(path));
   }
 
   [Test]

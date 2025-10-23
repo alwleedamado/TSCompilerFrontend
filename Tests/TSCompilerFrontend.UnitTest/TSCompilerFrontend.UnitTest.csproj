@@ -23,12 +23,8 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Src\TSCompilerFrontend\TSCompilerFrontend.csproj" />
     </ItemGroup>
-    
-    <Target Name="copyFiles">
-      <ItemGroup>
-        <TestFiles Include="*.ts" />
-      </ItemGroup>
-      
-      <Copy SourceFiles="$(TestFiles)" DestinationFolder="."/>
-    </Target>
+
+  <ItemGroup>
+    <Content Include="Ts\**\*.*" CopyToOutputDirectory="Always" />
+  </ItemGroup>
 </Project>

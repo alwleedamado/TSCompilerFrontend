@@ -1,0 +1,30 @@
+          callback.onStartingToHide();
+        }
+    }
+
+    private void dispatchStartingToShow() {
+        for (BouncerExpansionCallback callback : mExpansionCallbacks) {
+            callback.onStartingToShow();
+        }
+    }
+
+    private void dispatchFullyHidden() {
+        for (BouncerExpansionCallback callback : mExpansionCallbacks) {
+            callback.onFullyHidden();
+        }
+    }
+
+    private void dispatchExpansionChanged() {
+        for (BouncerExpansionCallback callback : mExpansionCallbacks) {
+            callback.onExpansionChanged(mExpansion);
+        }
+    }
+
+    private void dispatchVisibilityChanged() {
+        for (BouncerExpansionCallback callback : mExpansionCallbacks) {
+            callback.onVisibilityChanged(mRoot.getVisibility() == View.VISIBLE);
+        }
+    }
+
+    /**
+     * Apply keyguard configuration from the currently active resou

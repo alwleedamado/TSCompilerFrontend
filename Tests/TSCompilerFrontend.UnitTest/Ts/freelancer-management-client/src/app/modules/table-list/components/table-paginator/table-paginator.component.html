@@ -1,0 +1,5 @@
+<div class="flex align-items-center">
+    <p-progressSpinner strokeWidth="5" animationDuration="1s" styleClass="w-1rem h-1rem"></p-progressSpinner>
+    <p-paginator [rows]="pageState.pageSize" totalRecords="pageState.total" (onPageChange)="pageniate($event)">
+    </p-paginator>
+</div>

@@ -1,0 +1,45 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "baseUrl": "./src",
+        "outDir": "./dist/out-tsc",
+        "forceConsistentCasingInFileNames": true,
+        "strict": false,
+        "noImplicitOverride": true,
+        "noPropertyAccessFromIndexSignature": false,
+        "noImplicitReturns": false,
+        "noFallthroughCasesInSwitch": true,
+        "sourceMap": true,
+        "declaration": false,
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "node",
+        "importHelpers": true,
+        "target": "es2017",
+        "module": "es2020",
+        "lib": [
+            "es2020",
+            "dom"
+        ],
+        "paths": {
+            "auth/*": ["app/auth"],
+            "core/*": ["app/core/*"],
+            "layouts/*": ["app/layouts/*"],
+            "modules/*":["app/modules/*"],
+            "pages/*":["app/pages/*"],
+            "shared/*":["app/shared/*"],
+            "utils/*":["app/utils/*"],
+            "freelancer/*":["app/pages/freelancer/*"],
+            "team/*":["app/pages/team/*"],
+            "project/*": ["app/pages/project/*"],
+            "dashboard/*":["app/pages/dashboard/*"],
+            
+          }
+    },
+    "angularCompilerOptions": {
+        "enableI18nLegacyMessageIdFormat": false,
+        "strictInjectionParameters": false,
+        "strictInputAccessModifiers": false,
+        "strictTemplates": false
+    }
+}
